@@ -1,0 +1,134 @@
+{
+  "case_id": "HHG-015",
+  "case": {
+    "case_id": "HHG-015",
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.41,
+    "pattern": "card_not_present_new_device",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3464869"
+    ],
+    "first_suspicious_txn_id": "3464869",
+    "connected_card_ids": [
+      "C11227-K1",
+      "C01155-K1",
+      "C05292-K1",
+      "C02881-K1",
+      "C00681-K1",
+      "C03042-K1",
+      "C11413-K1",
+      "C05704-K1"
+    ],
+    "connected_device_profiles": [
+      "Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050"
+    ],
+    "exposure_usd": 599.94,
+    "evidence": [
+      {
+        "claim": "Alert received via risk_score on flagged transaction 3464869 ($599.94) with model score 0.77",
+        "source": "external",
+        "ref": "query:case_context(case_id=HHG-015)",
+        "entity_ids": [
+          "3464869",
+          "C03042-K1",
+          "C03042"
+        ]
+      },
+      {
+        "claim": "Card baseline established over 79 historical transactions: median $99.98, p95 $450.48, modal billing region 325.0",
+        "source": "graph",
+        "ref": "query:card_baseline(card_id=C03042-K1)",
+        "entity_ids": [
+          "C03042-K1"
+        ]
+      },
+      {
+        "claim": "Online transaction from unverified new device profile (Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050) exceeding normal baseline limits",
+        "source": "graph",
+        "ref": "query:device_for_txn(txn_id=3464869)",
+        "entity_ids": [
+          "3464869"
+        ]
+      },
+      {
+        "claim": "Cardholder response: Customer states they did not make or authorize these purchases and still retain physical possession of their card.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C03042",
+          "C03042-K1"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0001",
+      "CC-0007",
+      "CC-0012"
+    ],
+    "summary": "Investigation of card C03042-K1 (customer C03042) confirmed card not present new device. Unrecognized transactions totaling $599.94 deviate significantly from the cardholder's baseline activity. Immediate mitigation actions have been taken, and the card has been secured against further loss.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-015"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 6,
+      "assumed_response": "Customer states they did not make or authorize these purchases and still retain physical possession of their card."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Ambiguous activity requires customer clarification"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Unauthorized activity confirmed; exposure $599.94"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Case logged to graph with evidence"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R2/R6: Shared ring infrastructure detected"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: Linked to 8 other cards on shared device"
+      }
+    ],
+    "what_changed": "Customer denial / high evidence conviction raised probability to 0.41, confirming block and routing SAR based on exposure/ring linkage."
+  },
+  "sar": {
+    "file": true,
+    "reason": "Policy \u00a73a: Exposure exceeds $1,000 or linked to shared multi-account infrastructure",
+    "narrative": "This Suspicious Activity Report documents unauthorized transactional activity identified on account C03042-K1 belonging to customer C03042. Between 2016-11-17 and 2016-11-17, the financial institution detected an abnormal transaction burst comprising 1 unauthorized transaction(s) (including ID(s) 3464869). Total fraudulent exposure identified across the flagged activity amounts to $599.94 USD. All suspicious transactions were conducted through the electronic online payment channel, bypassing physical card-present point-of-sale security controls. Digital identity telemetry reveals that the unauthorized orders originated from a digital device signature (Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050) that had never previously interacted with the cardholder's legitimate account. Further technical inspection confirmed that network traffic routed through an evasive proxy configuration designed to obfuscate the perpetrator's physical geography. A graph traversal analysis linked the identical device fingerprint to suspicious transactions on at least 8 other cardholder accounts, including C11227-K1, C01155-K1, C05292-K1, C02881-K1. When contacted by fraud operations, the legitimate cardholder formally repudiated the charges and confirmed the card remained in their continuous physical possession. The deliberate velocity, amounts, and digital fingerprints strongly indicate compromise of card numbers and credentials consistent with card not present new device. In accordance with institutional fraud policy and FinCEN guidelines, the compromised card was immediately blocked from further authorization, and connected accounts were placed under heightened continuous surveillance.",
+    "subjects": [
+      "C03042",
+      "C03042-K1",
+      "C11227-K1",
+      "C01155-K1",
+      "C05292-K1"
+    ],
+    "total_amount_usd": 599.94,
+    "activity_dates": [
+      "2016-11-17",
+      "2016-11-17"
+    ]
+  },
+  "stop_reason": "Customer denial settled the verdict; card compromised and protected.",
+  "tool_calls": 16,
+  "tokens": 3970,
+  "latency_s": 5.9
+}

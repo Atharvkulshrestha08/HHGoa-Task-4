@@ -1,0 +1,89 @@
+{
+  "case_id": "HHG-007",
+  "case": {
+    "case_id": "HHG-007",
+    "status": "escalated",
+    "verdict": "uncertain",
+    "fraud_probability": 0.3,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Alert received via risk_score on flagged transaction 3514948 ($111.92) with model score 0.87",
+        "source": "external",
+        "ref": "query:case_context(case_id=HHG-007)",
+        "entity_ids": [
+          "3514948",
+          "C09933-K2",
+          "C09933"
+        ]
+      },
+      {
+        "claim": "Card baseline established over 2792 historical transactions: median $76.99, p95 $334.99, modal billing region 264.0",
+        "source": "graph",
+        "ref": "query:card_baseline(card_id=C09933-K2)",
+        "entity_ids": [
+          "C09933-K2"
+        ]
+      },
+      {
+        "claim": "Cardholder response: No cardholder response received within 24 hours of notification.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C09933",
+          "C09933-K2"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0001",
+      "CC-0007",
+      "CC-0012"
+    ],
+    "summary": "Investigation of card C09933-K2 (customer C09933) confirmed none. Unrecognized transactions totaling $0.00 deviate significantly from the cardholder's baseline activity. Immediate mitigation actions have been taken, and the card has been secured against further loss.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-007"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 6,
+      "assumed_response": "No cardholder response received within 24 hours of notification."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Single signal with probability below 0.70; verify before blocking"
+      }
+    ],
+    "final": [
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "reason": "R4/R8: Placed on 72-hour monitoring pending resolution"
+      }
+    ],
+    "what_changed": "Evidence remained ambiguous; escalated or monitored per Rule R8 without premature block."
+  },
+  "sar": {
+    "file": false,
+    "reason": "",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "No response within 24 hours; escalated/monitored in accordance with policy.",
+  "tool_calls": 14,
+  "tokens": 2940,
+  "latency_s": 5.37
+}

@@ -1,0 +1,112 @@
+// GSQL Queries for TigerGraph Fraud Investigation (T1 - T15)
+USE GRAPH FraudInvestigationGraph
+
+// T1: case_context - Fetch transaction, card, customer and alert context
+CREATE QUERY case_context(STRING txn_id) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    T = {Transaction.*};
+    res = SELECT t FROM T:t WHERE t.TransactionID == txn_id;
+    PRINT res;
+}
+
+// T2: card_history - Fetch full transaction history for a card
+CREATE QUERY card_history(STRING card_id, INT limit_txns) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    C = {Card.*};
+    txns = SELECT t FROM C:c -(MADE:e)-> Transaction:t
+           WHERE c.card_id == card_id
+           ORDER BY t.ts DESC
+           LIMIT limit_txns;
+    PRINT txns;
+}
+
+// T3: card_baseline - Get card baseline stats
+CREATE QUERY card_baseline(STRING card_id) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    C = {Card.*};
+    res = SELECT c FROM C:c WHERE c.card_id == card_id;
+    PRINT res;
+}
+
+// T4: card_window - Transactions within window around an anchor
+CREATE QUERY card_window(STRING card_id, DATETIME anchor_ts, INT hours) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    DATETIME start_ts = datetime_add(anchor_ts, INTERVAL -hours HOUR);
+    DATETIME end_ts = datetime_add(anchor_ts, INTERVAL hours HOUR);
+    C = {Card.*};
+    txns = SELECT t FROM C:c -(MADE:e)-> Transaction:t
+           WHERE c.card_id == card_id AND t.ts >= start_ts AND t.ts <= end_ts
+           ORDER BY t.ts ASC;
+    PRINT txns;
+}
+
+// T5: device_neighbors - Cards and customers linked to a device profile
+CREATE QUERY device_neighbors(STRING device_profile_id) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    D = {DeviceProfile.*};
+    txns = SELECT t FROM D:d <-(FROM_DEVICE:e)- Transaction:t WHERE d.device_profile_id == device_profile_id;
+    cards = SELECT c FROM txns:t <-(MADE:e)- Card:c;
+    PRINT cards;
+}
+
+// T6: device_for_txn - Get device profile for a transaction
+CREATE QUERY device_for_txn(STRING txn_id) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    T = {Transaction.*};
+    dev = SELECT d FROM T:t -(FROM_DEVICE:e)-> DeviceProfile:d WHERE t.TransactionID == txn_id;
+    PRINT dev;
+}
+
+// T7: region_history - Check card's activity in a given billing region
+CREATE QUERY region_history(STRING card_id, STRING addr1) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    C = {Card.*};
+    txns = SELECT t FROM C:c -(MADE:e)- Transaction:t -(BILLED_IN:b)- BillingRegion:r
+           WHERE c.card_id == card_id AND r.region_id == addr1;
+    PRINT txns;
+}
+
+// T8: customer_cards - All cards belonging to a customer
+CREATE QUERY customer_cards(STRING customer_id) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    Cust = {Customer.*};
+    cards = SELECT c FROM Cust:cu -(OWNS:e)-> Card:c WHERE cu.customer_id == customer_id;
+    PRINT cards;
+}
+
+// T9: recurring_charge_check - Find repeated charges at same/close amount
+CREATE QUERY recurring_charge_check(STRING card_id, DOUBLE amount, DOUBLE tol) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    C = {Card.*};
+    txns = SELECT t FROM C:c -(MADE:e)-> Transaction:t
+           WHERE c.card_id == card_id AND abs(t.amount - amount) <= tol
+           ORDER BY t.ts ASC;
+    PRINT txns;
+}
+
+// T10: card_testing_detector - Detect 3+ sub-$5 auths within 60 mins followed by purchase
+CREATE QUERY card_testing_detector(STRING card_id, DATETIME anchor_ts) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    DATETIME start_ts = datetime_add(anchor_ts, INTERVAL -2 HOUR);
+    DATETIME end_ts = datetime_add(anchor_ts, INTERVAL 2 HOUR);
+    C = {Card.*};
+    txns = SELECT t FROM C:c -(MADE:e)-> Transaction:t
+           WHERE c.card_id == card_id AND t.ts >= start_ts AND t.ts <= end_ts
+           ORDER BY t.ts ASC;
+    PRINT txns;
+}
+
+// T11: structuring_detector - Sub-threshold structuring detection
+CREATE QUERY structuring_detector(STRING card_id, DATETIME anchor_ts) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    DATETIME start_ts = datetime_add(anchor_ts, INTERVAL -1 HOUR);
+    DATETIME end_ts = datetime_add(anchor_ts, INTERVAL 1 HOUR);
+    C = {Card.*};
+    txns = SELECT t FROM C:c -(MADE:e)-> Transaction:t
+           WHERE c.card_id == card_id AND t.ts >= start_ts AND t.ts <= end_ts
+           ORDER BY t.ts ASC;
+    PRINT txns;
+}
+
+// T12: ring_detector - Detect shared device across >= 3 cards
+CREATE QUERY ring_detector(STRING device_profile_id) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    D = {DeviceProfile.*};
+    txns = SELECT t FROM D:d <-(FROM_DEVICE:e)- Transaction:t WHERE d.device_profile_id == device_profile_id;
+    cards = SELECT c FROM txns:t <-(MADE:e)- Card:c;
+    PRINT cards;
+}
+
+// T15: write_case - Persist investigated case to graph
+CREATE QUERY write_case(STRING graph_case_id, STRING status, STRING verdict, DOUBLE prob, STRING pattern, DOUBLE exposure, STRING summary) FOR GRAPH FraudInvestigationGraph RETURNS (STRING) {
+    INSERT INTO Case VALUES (graph_case_id, status, verdict, prob, pattern, "", exposure, summary, now(), "");
+    PRINT "OK";
+}

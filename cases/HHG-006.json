@@ -1,0 +1,156 @@
+{
+  "case_id": "HHG-006",
+  "case": {
+    "case_id": "HHG-006",
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.73,
+    "pattern": "undocumented",
+    "pattern_description": "Anonymous-proxy device ring: 543 cardholders transacted through the identical unusual device signature (Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080) behind an anonymous proxy, indicating organized multi-account harvesting.",
+    "affected_txn_ids": [
+      "3476682"
+    ],
+    "first_suspicious_txn_id": "3476682",
+    "connected_card_ids": [
+      "C01620-K1",
+      "C12755-K1",
+      "C07612-K1",
+      "C09803-K1",
+      "C01182-K1",
+      "C08179-K1",
+      "C10223-K1",
+      "C08989-K1",
+      "C09918-K1",
+      "C01672-K1"
+    ],
+    "connected_device_profiles": [
+      "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080"
+    ],
+    "exposure_usd": 482.12,
+    "evidence": [
+      {
+        "claim": "Alert received via customer_report on flagged transaction 3476682 ($482.12) with model score 0.25",
+        "source": "external",
+        "ref": "query:case_context(case_id=HHG-006)",
+        "entity_ids": [
+          "3476682",
+          "C07297-K1",
+          "C07297"
+        ]
+      },
+      {
+        "claim": "Card baseline established over 261 historical transactions: median $58.98, p95 $369.92, modal billing region 264.0",
+        "source": "graph",
+        "ref": "query:card_baseline(card_id=C07297-K1)",
+        "entity_ids": [
+          "C07297-K1"
+        ]
+      },
+      {
+        "claim": "Transaction linked to coordinated ring across 543 cards sharing device Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080",
+        "source": "graph",
+        "ref": "query:ring_detector(device_profile_id=Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080)",
+        "entity_ids": [
+          "C01620-K1",
+          "C12755-K1",
+          "C07612-K1",
+          "C09803-K1",
+          "C01182-K1",
+          "3476682"
+        ]
+      },
+      {
+        "claim": "Cardholder response: Customer states they did not make or authorize these purchases and still retain physical possession of their card.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C07297",
+          "C07297-K1"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0001",
+      "CC-0007",
+      "CC-0012"
+    ],
+    "summary": "Investigation identified a coordinated undocumented fraud ring targeting card C07297-K1 (customer C07297). Activity originated from a high-risk mobile device profile operating behind an anonymous proxy, matching patterns observed across multiple cardholders. Total exposure stands at $482.12. The card has been blocked and supervisory review has been initiated with full regulatory filing under Rule R9.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-006"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 6,
+      "assumed_response": "Customer states they did not make or authorize these purchases and still retain physical possession of their card."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Assessed probability 0.73 warrants card block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Policy \u00a73a: Open case for confirmed fraud suspicion"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "Policy \u00a73a: Exposure exceeds $1,000 or linked to shared ring"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Unauthorized activity confirmed; exposure $482.12"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Case logged to graph with evidence"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R2/R6: Shared ring infrastructure detected"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: Linked to 25 other cards on shared device"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: Undocumented pattern escalated for supervisory review"
+      }
+    ],
+    "what_changed": "Customer denial / high evidence conviction raised probability to 0.73, confirming block and routing SAR based on exposure/ring linkage."
+  },
+  "sar": {
+    "file": true,
+    "reason": "Policy \u00a73a: Exposure exceeds $1,000 or linked to shared multi-account infrastructure",
+    "narrative": "This Suspicious Activity Report documents unauthorized transactional activity identified on account C07297-K1 belonging to customer C07297. Between 2016-11-21 and 2016-11-21, the financial institution detected an abnormal transaction burst comprising 1 unauthorized transaction(s) (including ID(s) 3476682). Total fraudulent exposure identified across the flagged activity amounts to $482.12 USD. All suspicious transactions were conducted through the electronic online payment channel, bypassing physical card-present point-of-sale security controls. Digital identity telemetry reveals that the unauthorized orders originated from a digital device signature (Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080) that had never previously interacted with the cardholder's legitimate account. Further technical inspection confirmed that network traffic routed through an evasive proxy configuration designed to obfuscate the perpetrator's physical geography. A graph traversal analysis linked the identical device fingerprint to suspicious transactions on at least 25 other cardholder accounts, including C01620-K1, C12755-K1, C07612-K1, C09803-K1. When contacted by fraud operations, the legitimate cardholder formally repudiated the charges and confirmed the card remained in their continuous physical possession. The observed activity represents a coordinated multi-account compromise using shared device infrastructure, consistent with sophisticated cyber-enabled payment fraud under Rule R9. In accordance with institutional fraud policy and FinCEN guidelines, the compromised card was immediately blocked from further authorization, and connected accounts were placed under heightened continuous surveillance.",
+    "subjects": [
+      "C07297",
+      "C07297-K1",
+      "C01620-K1",
+      "C12755-K1",
+      "C07612-K1"
+    ],
+    "total_amount_usd": 482.12,
+    "activity_dates": [
+      "2016-11-21",
+      "2016-11-21"
+    ]
+  },
+  "stop_reason": "Customer denial settled the verdict; card compromised and protected.",
+  "tool_calls": 16,
+  "tokens": 3970,
+  "latency_s": 5.7
+}

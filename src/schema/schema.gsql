@@ -1,0 +1,112 @@
+// TigerGraph Schema Definition for Fraud Investigation (Hacker House Goa 2026)
+// Graph Name: FraudInvestigationGraph
+
+CREATE GRAPH FraudInvestigationGraph()
+
+USE GRAPH FraudInvestigationGraph
+
+// 1. Vertices
+CREATE VERTEX Customer(
+    PRIMARY_ID customer_id STRING,
+    n_cards INT,
+    first_seen_ts DATETIME,
+    home_region STRING,
+    home_country STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Card(
+    PRIMARY_ID card_id STRING,
+    card4 STRING,
+    card6 STRING,
+    issuer_codes STRING,
+    first_seen_ts DATETIME,
+    last_seen_ts DATETIME,
+    txn_count INT,
+    median_amt DOUBLE,
+    p95_amt DOUBLE
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Transaction(
+    PRIMARY_ID TransactionID STRING,
+    ts DATETIME,
+    amount DOUBLE,
+    product_cd STRING,
+    channel STRING,
+    risk_score DOUBLE,
+    dist1 DOUBLE,
+    dist2 DOUBLE,
+    C1 DOUBLE, C2 DOUBLE, C3 DOUBLE, C4 DOUBLE, C5 DOUBLE,
+    C6 DOUBLE, C7 DOUBLE, C8 DOUBLE, C9 DOUBLE, C10 DOUBLE,
+    C11 DOUBLE, C12 DOUBLE, C13 DOUBLE, C14 DOUBLE,
+    D1 DOUBLE, D2 DOUBLE, D3 DOUBLE, D4 DOUBLE, D5 DOUBLE,
+    D6 DOUBLE, D7 DOUBLE, D8 DOUBLE, D9 DOUBLE, D10 DOUBLE,
+    D11 DOUBLE, D12 DOUBLE, D13 DOUBLE, D14 DOUBLE, D15 DOUBLE,
+    M1 STRING, M2 STRING, M3 STRING, M4 STRING, M5 STRING,
+    M6 STRING, M7 STRING, M8 STRING, M9 STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX DeviceProfile(
+    PRIMARY_ID device_profile_id STRING,
+    device_type STRING,
+    raw_parts STRING,
+    n_cards_seen INT,
+    n_txns INT,
+    rarity_score DOUBLE,
+    ever_proxy BOOL
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX EmailDomain(
+    PRIMARY_ID domain_id STRING,
+    n_txns INT,
+    risk_prior DOUBLE
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX BillingRegion(
+    PRIMARY_ID region_id STRING,
+    country STRING,
+    n_customers INT
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX ClosedCase(
+    PRIMARY_ID case_id STRING,
+    outcome STRING,
+    pattern STRING,
+    exposure_usd DOUBLE,
+    n_txns INT,
+    report_filed STRING,
+    opened_at DATETIME,
+    closed_at DATETIME,
+    analyst_notes STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+CREATE VERTEX Case(
+    PRIMARY_ID graph_case_id STRING,
+    status STRING,
+    verdict STRING,
+    fraud_probability DOUBLE,
+    pattern STRING,
+    pattern_description STRING,
+    exposure_usd DOUBLE,
+    summary STRING,
+    created_at DATETIME,
+    actions_json STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+// 2. Edges
+CREATE DIRECTED EDGE OWNS(FROM Customer, TO Card);
+CREATE DIRECTED EDGE MADE(FROM Card, TO Transaction);
+CREATE DIRECTED EDGE FROM_DEVICE(FROM Transaction, TO DeviceProfile);
+CREATE DIRECTED EDGE PURCHASER_EMAIL(FROM Transaction, TO EmailDomain);
+CREATE DIRECTED EDGE RECIPIENT_EMAIL(FROM Transaction, TO EmailDomain);
+CREATE DIRECTED EDGE BILLED_IN(FROM Transaction, TO BillingRegion);
+CREATE DIRECTED EDGE NEXT(FROM Transaction, TO Transaction);
+
+CREATE UNDIRECTED EDGE INVOLVES(FROM ClosedCase, TO Transaction);
+CREATE UNDIRECTED EDGE ON_CARD(FROM ClosedCase, TO Card);
+CREATE UNDIRECTED EDGE CONNECTED_TO(FROM ClosedCase, TO Card);
+
+CREATE UNDIRECTED EDGE CASE_INVOLVES(FROM Case, TO Transaction);
+CREATE UNDIRECTED EDGE CASE_ON_CARD(FROM Case, TO Card);
+CREATE UNDIRECTED EDGE CASE_CONNECTED_TO(FROM Case, TO Card);
+CREATE UNDIRECTED EDGE CASE_SHARED_DEVICE(FROM Case, TO DeviceProfile);
+CREATE DIRECTED EDGE CITES(FROM Case, TO ClosedCase);

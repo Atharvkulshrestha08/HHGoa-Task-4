@@ -1,0 +1,46 @@
+// TigerGraph Data Loading Job Definition
+USE GRAPH FraudInvestigationGraph
+
+CREATE LOADING JOB load_fraud_data FOR GRAPH FraudInvestigationGraph {
+    DEFINE FILENAME txn_file;
+    DEFINE FILENAME id_file;
+    DEFINE FILENAME closed_cases_file;
+
+    // Load Transactions
+    LOAD txn_file TO VERTEX Transaction VALUES (
+        $"TransactionID",
+        $"ts",
+        $"TransactionAmt",
+        $"ProductCD",
+        $"channel",
+        $"risk_score",
+        $"dist1",
+        $"dist2",
+        $"C1", $"C2", $"C3", $"C4", $"C5", $"C6", $"C7", $"C8", $"C9", $"C10", $"C11", $"C12", $"C13", $"C14",
+        $"D1", $"D2", $"D3", $"D4", $"D5", $"D6", $"D7", $"D8", $"D9", $"D10", $"D11", $"D12", $"D13", $"D14", $"D15",
+        $"M1", $"M2", $"M3", $"M4", $"M5", $"M6", $"M7", $"M8", $"M9"
+    ) USING header="true", separator=",";
+
+    // Load Customer and Card Vertices + Edges
+    LOAD txn_file TO VERTEX Customer VALUES ($"customer_id", _, _, $"addr1", $"addr2") USING header="true", separator=",";
+    LOAD txn_file TO VERTEX Card VALUES ($"card1", $"card4", $"card6", _, _, _, _, _, _) USING header="true", separator=",";
+    LOAD txn_file TO EDGE OWNS VALUES ($"customer_id", $"card1") USING header="true", separator=",";
+    LOAD txn_file TO EDGE MADE VALUES ($"card1", $"TransactionID") USING header="true", separator=",";
+    LOAD txn_file TO VERTEX BillingRegion VALUES ($"addr1", $"addr2", _) USING header="true", separator=",";
+    LOAD txn_file TO EDGE BILLED_IN VALUES ($"TransactionID", $"addr1") USING header="true", separator=",";
+
+    // Load Closed Cases
+    LOAD closed_cases_file TO VERTEX ClosedCase VALUES (
+        $"case_id",
+        $"outcome",
+        $"pattern",
+        $"exposure_usd",
+        $"n_txns",
+        $"report_filed",
+        $"opened_at",
+        $"closed_at",
+        $"analyst_notes"
+    ) USING header="true", separator=",";
+
+    LOAD closed_cases_file TO EDGE ON_CARD VALUES ($"case_id", $"card_id") USING header="true", separator=",";
+}

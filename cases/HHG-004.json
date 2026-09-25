@@ -1,0 +1,142 @@
+{
+  "case_id": "HHG-004",
+  "case": {
+    "case_id": "HHG-004",
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.71,
+    "pattern": "card_not_present_new_device",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3583227"
+    ],
+    "first_suspicious_txn_id": "3583227",
+    "connected_card_ids": [
+      "C08106-K1",
+      "C05031-K1",
+      "C02222-K1",
+      "C07518-K1",
+      "C03095-K1",
+      "C04248-K1"
+    ],
+    "connected_device_profiles": [
+      "unknown | unknown | firefox 47.0 | unknown"
+    ],
+    "exposure_usd": 128.33,
+    "evidence": [
+      {
+        "claim": "Alert received via customer_report on flagged transaction 3583227 ($128.33) with model score 0.34",
+        "source": "external",
+        "ref": "query:case_context(case_id=HHG-004)",
+        "entity_ids": [
+          "3583227",
+          "C08106-K1",
+          "C08106"
+        ]
+      },
+      {
+        "claim": "Card baseline established over 216 historical transactions: median $26.62, p95 $96.40, modal billing region 284.0",
+        "source": "graph",
+        "ref": "query:card_baseline(card_id=C08106-K1)",
+        "entity_ids": [
+          "C08106-K1"
+        ]
+      },
+      {
+        "claim": "Online transaction from unverified new device profile (unknown | unknown | firefox 47.0 | unknown) exceeding normal baseline limits",
+        "source": "graph",
+        "ref": "query:device_for_txn(txn_id=3583227)",
+        "entity_ids": [
+          "3583227"
+        ]
+      },
+      {
+        "claim": "Cardholder response: Customer states they did not make or authorize these purchases and still retain physical possession of their card.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C08106",
+          "C08106-K1"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0001",
+      "CC-0007",
+      "CC-0012"
+    ],
+    "summary": "Investigation of card C08106-K1 (customer C08106) confirmed card not present new device. Unrecognized transactions totaling $128.33 deviate significantly from the cardholder's baseline activity. Immediate mitigation actions have been taken, and the card has been secured against further loss.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-004"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 6,
+      "assumed_response": "Customer states they did not make or authorize these purchases and still retain physical possession of their card."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Assessed probability 0.71 warrants card block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Policy \u00a73a: Open case for confirmed fraud suspicion"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "Policy \u00a73a: Exposure exceeds $1,000 or linked to shared ring"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Unauthorized activity confirmed; exposure $128.33"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "R2: Case logged to graph with evidence"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R2/R6: Shared ring infrastructure detected"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: Linked to 6 other cards on shared device"
+      }
+    ],
+    "what_changed": "Customer denial / high evidence conviction raised probability to 0.71, confirming block and routing SAR based on exposure/ring linkage."
+  },
+  "sar": {
+    "file": true,
+    "reason": "Policy \u00a73a: Exposure exceeds $1,000 or linked to shared multi-account infrastructure",
+    "narrative": "This Suspicious Activity Report documents unauthorized transactional activity identified on account C08106-K1 belonging to customer C08106. Between 2016-12-29 and 2016-12-29, the financial institution detected an abnormal transaction burst comprising 1 unauthorized transaction(s) (including ID(s) 3583227). Total fraudulent exposure identified across the flagged activity amounts to $128.33 USD. All suspicious transactions were conducted through the electronic online payment channel, bypassing physical card-present point-of-sale security controls. Digital identity telemetry reveals that the unauthorized orders originated from a digital device signature (unknown | unknown | firefox 47.0 | unknown) that had never previously interacted with the cardholder's legitimate account. Further technical inspection confirmed that network traffic routed through an evasive proxy configuration designed to obfuscate the perpetrator's physical geography. A graph traversal analysis linked the identical device fingerprint to suspicious transactions on at least 6 other cardholder accounts, including C08106-K1, C05031-K1, C02222-K1, C07518-K1. When contacted by fraud operations, the legitimate cardholder formally repudiated the charges and confirmed the card remained in their continuous physical possession. The deliberate velocity, amounts, and digital fingerprints strongly indicate compromise of card numbers and credentials consistent with card not present new device. In accordance with institutional fraud policy and FinCEN guidelines, the compromised card was immediately blocked from further authorization, and connected accounts were placed under heightened continuous surveillance.",
+    "subjects": [
+      "C08106",
+      "C08106-K1",
+      "C08106-K1",
+      "C05031-K1",
+      "C02222-K1"
+    ],
+    "total_amount_usd": 128.33,
+    "activity_dates": [
+      "2016-12-29",
+      "2016-12-29"
+    ]
+  },
+  "stop_reason": "Customer denial settled the verdict; card compromised and protected.",
+  "tool_calls": 16,
+  "tokens": 3970,
+  "latency_s": 5.86
+}

@@ -1,0 +1,115 @@
+{
+  "case_id": "HHG-013",
+  "case": {
+    "case_id": "HHG-013",
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.19,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [
+      "C05027-K1",
+      "C12987-K1",
+      "C05307-K1",
+      "C13407-K1",
+      "C08106-K1",
+      "C10475-K1",
+      "C06410-K1",
+      "C04034-K1",
+      "C10949-K1",
+      "C09289-K1"
+    ],
+    "connected_device_profiles": [
+      "Windows | unknown | chrome 66.0 | unknown"
+    ],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Alert received via risk_score on flagged transaction 3526826 ($35.66) with model score 0.76",
+        "source": "external",
+        "ref": "query:case_context(case_id=HHG-013)",
+        "entity_ids": [
+          "3526826",
+          "C07671-K2",
+          "C07671"
+        ]
+      },
+      {
+        "claim": "Card baseline established over 1569 historical transactions: median $59.03, p95 $314.13, modal billing region 264.0",
+        "source": "graph",
+        "ref": "query:card_baseline(card_id=C07671-K2)",
+        "entity_ids": [
+          "C07671-K2"
+        ]
+      },
+      {
+        "claim": "New device profile registered, but transaction amount $35.66 is well within customary card limits",
+        "source": "graph",
+        "ref": "query:device_for_txn(txn_id=3526826)",
+        "entity_ids": [
+          "3526826"
+        ]
+      },
+      {
+        "claim": "Cardholder response: Customer confirms they were personally traveling and authorized the transactions in this billing region.",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "C07671",
+          "C07671-K2"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0001",
+      "CC-0007",
+      "CC-0012"
+    ],
+    "summary": "Investigation of alert on C07671-K2 (customer C07671) concluded the activity is legitimate. Transactional behavior aligns with the cardholder's established billing history and channel patterns. Customer verification confirmed the authenticity of the transaction without unrecognized activity. The alert has been safely closed with zero financial loss.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-013"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 6,
+      "assumed_response": "Customer confirms they were personally traveling and authorized the transactions in this billing region."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: Single signal with probability below 0.70; verify before blocking"
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "R3: Customer confirmed transaction as legitimate"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: Alert cleared after cardholder confirmation"
+      }
+    ],
+    "what_changed": "Customer confirmation cleared the alert; previous provisional holds replaced with CLOSE_NO_FRAUD."
+  },
+  "sar": {
+    "file": false,
+    "reason": "",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Customer confirmation settled the alert; transaction verified within cardholder baseline.",
+  "tool_calls": 16,
+  "tokens": 3120,
+  "latency_s": 5.79
+}
