@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HHG-4 Case Board · TigerGraph Agentic Fraud Investigation</title>
+<meta name="description" content="Case board for a TigerGraph-backed agentic fraud investigation system: 20 investigated cases, evidence, and next-best-action recommendations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="grain"></div>
+
+<header class="masthead">
+  <div class="masthead__mark">
+    <span class="masthead__stamp">EXAM PERIOD</span>
+    <span class="masthead__sub">NOV&ndash;DEC 2016</span>
+  </div>
+  <div class="masthead__title">
+    <h1>Case Board</h1>
+    <p>TigerGraph Agentic Fraud Investigation &mdash; HHG&#8209;4</p>
+  </div>
+  <div class="masthead__badge">
+    <span>20</span>
+    <small>cases closed</small>
+  </div>
+</header>
+
+<section class="brief">
+  <p>
+    An agent investigates each alert against a knowledge graph of card transactions, device
+    signals, and closed prior cases &mdash; then decides what kind of fraud it might be, how far
+    it reaches, and what the bank should do next. This board is the read&#8209;only record of that
+    run: every case it opened, the evidence it gathered, and the action it recommended before
+    and after asking for more proof.
+  </p>
+</section>
+
+<section class="stats" id="stats"></section>
+
+<section class="board">
+  <aside class="filters" id="filters"></aside>
+
+  <div class="list" id="caseList"></div>
+
+  <div class="detail" id="detail">
+    <div class="detail__empty">
+      <p>Select a case from the list to open its file.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="colophon">
+  <p>Generated from the batch investigation run (<code>scripts/run_investigation.py</code>) over the
+  IEEE&#8209;CIS derived case pack. Full dataset documentation, fraud patterns, and policy rules are
+  described in the project README.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
